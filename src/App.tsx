@@ -161,21 +161,31 @@ const App: FunctionalComponent = () => {
     >
       <CssBaseline />
       {accessToken ? (
-        <div>
+        <Box sx={{ "& button": { m: 1 } }}>
           <div>
             <div>
-              <Button onClick={onSavePlaylists}>Save Playlists</Button>
-              <Button onClick={onLoadPlaylists}>Load Playlists</Button>
+              <Button variant="contained" onClick={onSavePlaylists}>
+                Save Playlists
+              </Button>
+              <Button variant="contained" onClick={onLoadPlaylists}>
+                Load Playlists
+              </Button>
             </div>
             <div>
-              <Button onClick={onSavePlugins}>Save Plugins</Button>
-              <Button onClick={onLoadPlugins}>Install Plugins</Button>
+              <Button variant="contained" onClick={onSavePlugins}>
+                Save Plugins
+              </Button>
+              <Button variant="contained" onClick={onLoadPlugins}>
+                Install Plugins
+              </Button>
             </div>
             <div>
-              <Button onClick={onLogout}>Logout</Button>
+              <Button variant="contained" onClick={onLogout}>
+                Logout
+              </Button>
             </div>
           </div>
-        </div>
+        </Box>
       ) : (
         <div>
           <Button variant="contained" onClick={onLogin}>
