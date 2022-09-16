@@ -13,7 +13,7 @@
   "author": "Elijah Green",
   "license": "MIT",
   "devDependencies": {
-    "videogata-plugin-typings": "../../../libraries/videogata-plugin-typings",
+    "videogata-plugin-typings": "git@gitlab.com:elijahgreen/videogata-plugin-typings.git",
     "parcel": "^2.5.0",
     "typescript": "^4.6.2"
   },
