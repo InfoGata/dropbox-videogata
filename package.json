@@ -1,6 +1,6 @@
 {
   "name": "dropbox-videogata",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Dropbox plugin for videogata",
   "scripts": {
     "build": "parcel build src/index.ts src/options.html --dist-dir dist/ --no-source-maps",
@@ -13,7 +13,7 @@
   "author": "Elijah Green",
   "license": "MIT",
   "devDependencies": {
-    "videogata-plugin-typings": "git@gitlab.com:elijahgreen/videogata-plugin-typings.git",
+    "videogata-plugin-typings": "1.0.1",
     "parcel": "^2.5.0",
     "typescript": "^4.6.2"
   },
