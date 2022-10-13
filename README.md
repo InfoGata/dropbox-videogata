@@ -1,3 +1,5 @@
-# googledrive-videogata
+# dropbox-videogata
 
-A [videogata](https://www.videogata.com) plugin for storing videogata data on dropbox.
+A [videogata](https://github.com/InfoGata/videogata) plugin for storing videogata data on dropbox.
+
+[Installation Link](https://cdn.jsdelivr.net/gh/InfoGata/dropbox-videogata@latest/manifest.json)
