@@ -13,7 +13,7 @@
   "author": "Elijah Green",
   "license": "MIT",
   "devDependencies": {
-    "videogata-plugin-typings": "1.0.1",
+    "@infogata/videogata-plugin-typings": "1.0.2",
     "parcel": "^2.5.0",
     "typescript": "^4.6.2"
   },

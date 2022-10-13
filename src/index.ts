@@ -1,6 +1,5 @@
 import type { DropboxAuth } from "dropbox";
 import { CLIENT_ID } from "./shared";
-import "videogata-plugin-typings";
 import { MessageType, UiMessageType } from "./types";
 
 const PLUGIN_PATH = "/plugins.json";

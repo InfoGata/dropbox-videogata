@@ -11,6 +11,10 @@
       "es6",
       "es7",
       "dom"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@infogata"
     ]
   },
   "include": [
