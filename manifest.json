@@ -4,5 +4,6 @@
   "version": "1.1.1",
   "script": "dist/index.js",
   "options": "dist/options.html",
-  "description": "Store and retreive playlists from Dropbox"
+  "description": "Store and retreive playlists from Dropbox",
+  "updateUrl": "https://cdn.jsdelivr.net/gh/InfoGata/dropbox-videogata@latest/manifest.json"
 }
