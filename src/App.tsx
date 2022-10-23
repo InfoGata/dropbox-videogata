@@ -54,6 +54,9 @@ const App: FunctionalComponent = () => {
         case "login":
           setAccessToken(event.data.accessToken);
           break;
+        default:
+          const _exhaustive: never = event.data;
+          break;
       }
     };
     window.addEventListener("message", onMessage);
