@@ -147,6 +147,13 @@ const loadScript = () => {
   });
 };
 
+const changeTheme = (theme: Theme) => {
+  localStorage.setItem("kb-color-mode", theme);
+};
+application.onChangeTheme = async (theme: Theme) => {
+  changeTheme(theme);
+};
+
 const init = async () => {
   await loadScript();
   const clientId = localStorage.getItem("clientId");
@@ -157,6 +164,8 @@ const init = async () => {
   if (accessToken && refreshToken) {
     setTokens(accessToken, refreshToken);
   }
+  const theme = await application.getTheme();
+  changeTheme(theme);
 };
 
 init();
