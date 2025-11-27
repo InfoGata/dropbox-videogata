@@ -1,3 +1,4 @@
+import { useState, useEffect } from "preact/hooks";
 import {
   Accordion,
   AccordionContent,
@@ -8,7 +9,6 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { CLIENT_ID } from "./shared";
 import { AccessCodeResponse, MessageType, UiMessageType } from "./types";
-import { createEffect, createSignal } from "solid-js";
 
 const sendUiMessage = (message: UiMessageType) => {
   parent.postMessage(message, "*");
@@ -16,12 +16,12 @@ const sendUiMessage = (message: UiMessageType) => {
 
 const redirectPath = "/login_popup.html";
 const App = () => {
-  const [accessToken, setAccessToken] = createSignal("");
-  const [message, setMessage] = createSignal("");
-  const [redirectUri, setRedirectUri] = createSignal("");
-  const [pluginId, setPluginId] = createSignal("");
-  const [clientId, setClientId] = createSignal("");
-  const [useOwnKeys, setUseOwnKeys] = createSignal(false);
+  const [accessToken, setAccessToken] = useState("");
+  const [message, setMessage] = useState("");
+  const [redirectUri, setRedirectUri] = useState("");
+  const [pluginId, setPluginId] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [useOwnKeys, setUseOwnKeys] = useState(false);
 
   const showMessage = (m: string) => {
     setMessage(m);
@@ -30,7 +30,7 @@ const App = () => {
     }, 3000);
   };
 
-  createEffect(() => {
+  useEffect(() => {
     const onMessage = (event: MessageEvent<MessageType>) => {
       switch (event.data.type) {
         case "message":
@@ -56,14 +56,14 @@ const App = () => {
     window.addEventListener("message", onMessage);
     sendUiMessage({ type: "check-login" });
     return () => window.removeEventListener("message", onMessage);
-  });
+  }, []);
 
   const onLogin = async () => {
     const dropboxAuth = new Dropbox.DropboxAuth({ clientId: CLIENT_ID });
     const state = { pluginId: pluginId };
     const stateStr = JSON.stringify(state);
     const authUrl = await dropboxAuth.getAuthenticationUrl(
-      redirectUri(),
+      redirectUri,
       stateStr,
       "code",
       "offline",
@@ -80,7 +80,7 @@ const App = () => {
       }
       const code = returnUrl.searchParams.get("code") || "";
       const accessCodeResponse = await dropboxAuth.getAccessTokenFromCode(
-        redirectUri(),
+        redirectUri,
         code
       );
       const accessCodeResult = accessCodeResponse.result as AccessCodeResponse;
@@ -123,7 +123,7 @@ const App = () => {
     setUseOwnKeys(!!clientId);
     sendUiMessage({
       type: "set-keys",
-      clientId: clientId(),
+      clientId: clientId,
     });
   };
 
@@ -149,45 +149,45 @@ const App = () => {
   };
 
   return (
-    <div class="flex">
-      {accessToken() ? (
-        <div class="flex flex-col gap-2">
-          <div class="flex gap-2">
+    <div className="flex">
+      {accessToken ? (
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
             <Button onClick={onSavePlaylists}>Save Playlists</Button>
             <Button onClick={onLoadPlaylists}>Load Playlists</Button>
           </div>
-          <div class="flex gap-2">
+          <div className="flex gap-2">
             <Button onClick={onSavePlugins}>Save Plugins</Button>
             <Button onClick={onLoadPlugins}>Install Plugins</Button>
           </div>
-          <div class="flex gap-2">
+          <div className="flex gap-2">
             <Button onClick={onLogout}>Logout</Button>
           </div>
         </div>
       ) : (
-        <div class="w-full">
+        <div className="w-full">
           <Button onClick={onLogin}>Login</Button>
-          {useOwnKeys() && (
+          {useOwnKeys && (
             <p>Using Client Id set in the Advanced Configuration</p>
           )}
-          <Accordion multiple collapsible class="w-full">
+          <Accordion type="multiple">
             <AccordionItem value="item-1">
               <AccordionTrigger>Advanced Configuration</AccordionTrigger>
               <AccordionContent>
-                <div class="flex flex-col gap-4 m-4">
+                <div className="flex flex-col gap-4 m-4">
                   <p>Supplying your own keys:</p>
-                  <p>{redirectUri()} needs be added to Redirect URIs</p>
+                  <p>{redirectUri} needs be added to Redirect URIs</p>
                   <div>
                     <Input
                       placeholder="Client ID"
-                      value={clientId()}
-                      onChange={(e) => {
-                        const value = e.currentTarget.value;
+                      value={clientId}
+                      onChange={(e: any) => {
+                        const value = (e.target as HTMLInputElement).value;
                         setClientId(value);
                       }}
                     />
                   </div>
-                  <div class="flex gap-2">
+                  <div className="flex gap-2">
                     <Button onClick={onSaveKeys}>Save</Button>
                     <Button variant="destructive" onClick={onClearKeys}>
                       Clear
@@ -199,7 +199,7 @@ const App = () => {
           </Accordion>
         </div>
       )}
-      <pre>{message()}</pre>
+      <pre>{message}</pre>
     </div>
   );
 };
