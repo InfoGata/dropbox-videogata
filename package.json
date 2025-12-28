@@ -1,6 +1,6 @@
 {
   "name": "dropbox-videogata",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Dropbox plugin for videogata",
   "scripts": {
     "build": "tsc && npm run build:options && npm run build:plugin",
