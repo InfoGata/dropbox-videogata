@@ -16,7 +16,7 @@
       "react/jsx-runtime": ["./node_modules/preact/jsx-runtime"],
       "~/*": ["./src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./node_modules/@infogata"]
+    "types": ["@infogata/videogata-plugin-typings"]
   },
   "include": ["src/**/*"]
 }
