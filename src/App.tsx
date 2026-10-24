@@ -1,205 +1,123 @@
 import { useState, useEffect } from "preact/hooks";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "./components/ui/accordion";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import { CLIENT_ID } from "./shared";
-import { AccessCodeResponse, MessageType, UiMessageType } from "./types";
+import { MessageType, UiMessageType } from "./shared";
 
 const sendUiMessage = (message: UiMessageType) => {
   parent.postMessage(message, "*");
 };
 
-const redirectPath = "/login_popup.html";
 const App = () => {
-  const [accessToken, setAccessToken] = useState("");
-  const [message, setMessage] = useState("");
-  const [redirectUri, setRedirectUri] = useState("");
-  const [pluginId, setPluginId] = useState("");
   const [clientId, setClientId] = useState("");
-  const [useOwnKeys, setUseOwnKeys] = useState(false);
-
-  const showMessage = (m: string) => {
-    setMessage(m);
-    setTimeout(() => {
-      setMessage("");
-    }, 3000);
-  };
+  const [redirectUri, setRedirectUri] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const onMessage = (event: MessageEvent<MessageType>) => {
       switch (event.data.type) {
-        case "message":
-          showMessage(event.data.message);
-          break;
         case "info":
-          console.log(event);
-          setRedirectUri(event.data.origin + redirectPath);
-          setPluginId(event.data.pluginId);
           setClientId(event.data.clientId);
-          if (event.data.clientId) {
-            setUseOwnKeys(true);
-          }
-          break;
-        case "login":
-          setAccessToken(event.data.accessToken);
-          break;
-        default:
-          const _exhaustive: never = event.data;
+          setRedirectUri(event.data.redirectUri);
+          setIsLoggedIn(event.data.isLoggedIn);
           break;
       }
     };
+
     window.addEventListener("message", onMessage);
     sendUiMessage({ type: "check-login" });
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
-  const onLogin = async () => {
-    const dropboxAuth = new Dropbox.DropboxAuth({ clientId: CLIENT_ID });
-    const state = { pluginId: pluginId };
-    const stateStr = JSON.stringify(state);
-    const authUrl = await dropboxAuth.getAuthenticationUrl(
-      redirectUri,
-      stateStr,
-      "code",
-      "offline",
-      undefined,
-      undefined,
-      true
-    );
-    const url = authUrl.valueOf();
-    const newWindow = window.open(url, "_blank");
-    const onMessage = async (url: string) => {
-      const returnUrl = new URL(url);
-      if (newWindow) {
-        newWindow.close();
-      }
-      const code = returnUrl.searchParams.get("code") || "";
-      const accessCodeResponse = await dropboxAuth.getAccessTokenFromCode(
-        redirectUri,
-        code
-      );
-      const accessCodeResult = accessCodeResponse.result as AccessCodeResponse;
-      const accessToken = accessCodeResult.access_token;
-      const refreshToken = accessCodeResult.refresh_token;
-      console.log("accessToken", accessToken);
-      setAccessToken(accessToken);
-      sendUiMessage({
-        type: "login",
-        accessToken,
-        refreshToken,
-      });
-    };
-    window.onmessage = async (event: MessageEvent) => {
-      if (event.source === newWindow && event.data.url) {
-        await onMessage(event.data.url);
-      } else {
-        // mobile deeplink
-        if (event.data.type === "deeplink") {
-          await onMessage(event.data.url);
-        }
-      }
-    };
+  const saveCredentials = () => {
+    sendUiMessage({ type: "save", clientId: clientId.trim() });
   };
 
-  const onSavePlugins = () => {
-    sendUiMessage({ type: "save-plugins" });
-  };
-
-  const onLoadPlugins = () => {
-    sendUiMessage({ type: "load-plugins" });
-  };
-
-  const onLogout = () => {
+  const handleLogout = () => {
     sendUiMessage({ type: "logout" });
-    setAccessToken("");
-  };
-
-  const onSaveKeys = () => {
-    setUseOwnKeys(!!clientId);
-    sendUiMessage({
-      type: "set-keys",
-      clientId: clientId,
-    });
-  };
-
-  const onClearKeys = () => {
-    setClientId("");
-    setUseOwnKeys(false);
-    sendUiMessage({
-      type: "set-keys",
-      clientId: "",
-    });
-  };
-
-  const onSavePlaylists = () => {
-    sendUiMessage({
-      type: "save-playlists",
-    });
-  };
-
-  const onLoadPlaylists = () => {
-    sendUiMessage({
-      type: "load-playlists",
-    });
   };
 
   return (
-    <div className="flex">
-      {accessToken ? (
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <Button onClick={onSavePlaylists}>Save Playlists</Button>
-            <Button onClick={onLoadPlaylists}>Load Playlists</Button>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={onSavePlugins}>Save Plugins</Button>
-            <Button onClick={onLoadPlugins}>Install Plugins</Button>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={onLogout}>Logout</Button>
-          </div>
+    <div className="flex flex-col gap-4 p-4 max-w-md">
+      <h1 className="text-xl font-bold">Dropbox Sync Plugin Settings</h1>
+
+      <p className="text-sm text-muted-foreground">
+        Status:{" "}
+        {isLoggedIn ? (
+          <span className="text-green-600 font-medium">Connected to Dropbox</span>
+        ) : (
+          <span className="text-yellow-600 font-medium">Not Connected</span>
+        )}
+      </p>
+
+      {isLoggedIn ? (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-muted-foreground">
+            Your VideoGata playlists and favorites are being synced to your
+            Dropbox account.
+          </p>
+          <Button variant="destructive" onClick={handleLogout}>
+            Disconnect from Dropbox
+          </Button>
         </div>
       ) : (
-        <div className="w-full">
-          <Button onClick={onLogin}>Login</Button>
-          {useOwnKeys && (
-            <p>Using Client Id set in the Advanced Configuration</p>
-          )}
-          <Accordion type="multiple">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>Advanced Configuration</AccordionTrigger>
-              <AccordionContent>
-                <div className="flex flex-col gap-4 m-4">
-                  <p>Supplying your own keys:</p>
-                  <p>{redirectUri} needs be added to Redirect URIs</p>
-                  <div>
-                    <Input
-                      placeholder="Client ID"
-                      value={clientId}
-                      onChange={(e: any) => {
-                        const value = (e.target as HTMLInputElement).value;
-                        setClientId(value);
-                      }}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={onSaveKeys}>Save</Button>
-                    <Button variant="destructive" onClick={onClearKeys}>
-                      Clear
-                    </Button>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+        <>
+          <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md">
+            <p>
+              No setup is needed. Go to VideoGata Settings → Cloud Sync, choose
+              this plugin and log in with your Dropbox account.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h2 className="font-medium">Use Your Own Dropbox App (Optional)</h2>
+            <p className="text-sm text-muted-foreground">
+              Leave the App Key empty to use the default app.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">App Key</label>
+            <Input
+              placeholder="Your Dropbox App Key"
+              value={clientId}
+              onChange={(e: any) => {
+                const value = (e.target as HTMLInputElement).value;
+                setClientId(value);
+              }}
+            />
+          </div>
+
+          <Button onClick={saveCredentials}>Save</Button>
+
+          <div className="text-sm text-muted-foreground mt-4">
+            <h3 className="font-medium mb-2">Setup Instructions:</h3>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>
+                Go to the{" "}
+                <a
+                  href="https://www.dropbox.com/developers/apps"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Dropbox App Console
+                </a>{" "}
+                and click "Create app"
+              </li>
+              <li>Choose "Scoped access" and "App folder"</li>
+              <li>
+                Under Permissions, enable "files.content.write" and
+                "files.content.read"
+              </li>
+              <li>
+                Add this Redirect URI:{" "}
+                <code className="bg-muted px-1 rounded break-all">{redirectUri}</code>
+              </li>
+              <li>Copy the "App key", paste it above and click Save</li>
+              <li>Go to VideoGata Settings → Cloud Sync to connect</li>
+            </ol>
+          </div>
+        </>
       )}
-      <pre>{message}</pre>
     </div>
   );
 };

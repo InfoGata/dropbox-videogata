@@ -1,10 +1,11 @@
 {
   "id": "G0y4w_PEjvc3cGEJA1Qfq",
-  "name": "Plugin for Dropbox",
-  "version": "1.4.0",
+  "name": "Dropbox Sync",
+  "alias": "dropbox",
+  "version": "2.0.0",
   "script": "dist/index.js",
   "options": "dist/options.html",
-  "description": "Store and retreive playlists from Dropbox",
+  "description": "Sync your playlists and favorites between devices with Dropbox",
   "updateUrl": "https://cdn.jsdelivr.net/gh/InfoGata/dropbox-videogata@latest/manifest.json",
   "homepage": "https://github.com/InfoGata/dropbox-videogata"
 }
